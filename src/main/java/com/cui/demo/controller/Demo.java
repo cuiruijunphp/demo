@@ -1,22 +1,28 @@
 package com.cui.demo.controller;
 
-import com.apifan.common.random.RandomSource;
-import com.apifan.common.random.entity.Poem;
+import com.alibaba.fastjson.JSON;
 import com.apifan.common.random.source.*;
 import com.cui.demo.pojo.entity.Article;
+import com.cui.demo.pojo.entity.EsArticle;
 import com.cui.demo.pojo.entity.UserEs;
+import com.cui.demo.service.ArticleInsertEsThreadService;
 import com.cui.demo.service.ArticleService;
 import com.cui.demo.service.ArticleThreadService;
 import com.cui.demo.service.UserEsService;
 import com.github.javafaker.Faker;
+import org.checkerframework.checker.units.qual.A;
+import org.elasticsearch.action.bulk.BulkRequest;
+import org.elasticsearch.action.bulk.BulkResponse;
+import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.index.IndexResponse;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.xcontent.XContentType;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.env.RandomValuePropertySource;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.Resource;
-import java.io.IOException;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -31,6 +37,12 @@ public class Demo {
 
     @Autowired
     private ArticleThreadService articleThreadService;
+
+    @Autowired
+    private RestHighLevelClient restHighLevelClient;
+
+    @Autowired
+    private ArticleInsertEsThreadService articleInsertEsThreadService;
 
     @RequestMapping("/insertLargeData")
 //    @RequestBody
@@ -134,5 +146,45 @@ public class Demo {
         for (int i = 0; i < 10; i++) {
             articleThreadService.do_batch_insert();
         }
+    }
+
+    @RequestMapping("/getOne")
+    public List<Article> get_article_data() throws Exception {
+        List<Article> article = articleService.selectData(1, 1);
+
+//        GetRequest request = new GetRequest("es_db", "9");
+//        //没有indices()了
+//        boolean exist = restHighLevelClient.exists(request, RequestOptions.DEFAULT);
+//        System.out.println(exist);
+
+
+        IndexRequest request = new IndexRequest("article");
+        //设置超时时间
+//        request.timeout("1s");
+        //将数据放到json字符串
+        //将User对象中的数据映射到newUser 中
+        EsArticle esArticle = new EsArticle();
+        BeanUtils.copyProperties(article, esArticle);
+//        esArticle.set_id(String.valueOf(esArticle.getId()));
+
+        request.source(JSON.toJSONString(esArticle), XContentType.JSON);
+        //发送请求
+        IndexResponse response = restHighLevelClient.index(request, RequestOptions.DEFAULT);
+
+        return article;
+    }
+
+    @RequestMapping("/bulkArticle")
+    public List<Article> bulk_article_data() throws Exception {
+        List<Article> articles = articleService.selectData(1, 2);
+
+        int limit = 5000;
+
+        for (int i = 0; i < 10; i++) {
+            int offset = i * limit;
+            articleInsertEsThreadService.do_batch_insert(offset,limit);
+        }
+
+        return articles;
     }
 }

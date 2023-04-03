@@ -9,4 +9,6 @@ import java.util.List;
 @Mapper
 public interface ArticleMapper {
     int insertData(List<Article> article);
+
+    List<Article> selectData(int offset, int limit);
 }

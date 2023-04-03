@@ -10,4 +10,8 @@
         (#{article.user_id},#{article.type}, #{article.sort}, #{article.title}, #{article.content}, #{article.create_time}, #{article.update_time})
         </foreach>
     </insert>
+
+    <select id="selectData" resultType="com.cui.demo.pojo.entity.Article" parameterType="int">
+        select * from article limit #{param1},#{param2}
+    </select>
 </mapper>

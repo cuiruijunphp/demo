@@ -8,5 +8,16 @@ spring:
       initial-size: 10
       max-active: 10
 
+  elasticsearch:
+    rest:
+      enable: true
+      uris: localhost:9200
+      host: localhost
+      port: 9200
+#      username: elastic
+#      password: 123456
+#      index: indexName
+#      crtName: http_ca.crt
+
 server:
   port: 8083
