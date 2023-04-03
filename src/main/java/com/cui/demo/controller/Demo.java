@@ -1,26 +1,36 @@
 package com.cui.demo.controller;
 
+import com.apifan.common.random.RandomSource;
+import com.apifan.common.random.entity.Poem;
 import com.apifan.common.random.source.*;
+import com.cui.demo.pojo.entity.Article;
 import com.cui.demo.pojo.entity.UserEs;
+import com.cui.demo.service.ArticleService;
+import com.cui.demo.service.ArticleThreadService;
 import com.cui.demo.service.UserEsService;
 import com.github.javafaker.Faker;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.env.RandomValuePropertySource;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.Resource;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 @RestController
 public class Demo {
 
     @Autowired
     private UserEsService userEsService;
+
+    @Autowired
+    private ArticleService articleService;
+
+    @Autowired
+    private ArticleThreadService articleThreadService;
 
     @RequestMapping("/insertLargeData")
 //    @RequestBody
@@ -87,8 +97,6 @@ public class Demo {
             SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             Date current_date = new Date(System.currentTimeMillis());
 
-
-
             for (int j = 0; j < 100; j++) {
                 List<UserEs> userEs = new ArrayList<>();
                 for (int i = 0; i < 5000; i++) {
@@ -114,6 +122,17 @@ public class Demo {
                 }
                 int insertRes = userEsService.insert(userEs);
             }
+        }
+    }
+
+
+    @RequestMapping("/insertArticle")
+    public void insert_article() throws Exception {
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date current_date = new Date(System.currentTimeMillis());
+
+        for (int i = 0; i < 10; i++) {
+            articleThreadService.do_batch_insert();
         }
     }
 }

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cui.demo.mapper.ArticleMapper">
+    <insert id="insertData" parameterType="java.util.List">
+        insert into article(user_id,`type`, sort, title, content, create_time, update_time)
+        values
+        <foreach collection="list" item="article" separator=",">
+        (#{article.user_id},#{article.type}, #{article.sort}, #{article.title}, #{article.content}, #{article.create_time}, #{article.update_time})
+        </foreach>
+    </insert>
+</mapper>
