@@ -1,5 +1,6 @@
 package com.cui.demo.service.impl;
 
+import com.apifan.common.random.constant.Province;
 import com.cui.demo.mapper.UserEsMapper;
 import com.cui.demo.pojo.entity.UserEs;
 import com.cui.demo.service.UserEsService;

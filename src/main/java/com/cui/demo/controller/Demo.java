@@ -1,14 +1,13 @@
 package com.cui.demo.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.apifan.common.random.RandomSource;
+import com.apifan.common.random.constant.Province;
 import com.apifan.common.random.source.*;
 import com.cui.demo.pojo.entity.Article;
 import com.cui.demo.pojo.entity.EsArticle;
 import com.cui.demo.pojo.entity.UserEs;
-import com.cui.demo.service.ArticleInsertEsThreadService;
-import com.cui.demo.service.ArticleService;
-import com.cui.demo.service.ArticleThreadService;
-import com.cui.demo.service.UserEsService;
+import com.cui.demo.service.*;
 import com.github.javafaker.Faker;
 import org.checkerframework.checker.units.qual.A;
 import org.elasticsearch.action.bulk.BulkRequest;
@@ -50,11 +49,9 @@ public class Demo {
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date current_date = new Date(System.currentTimeMillis());
 
-        Faker faker = new Faker(new Locale("zh-CN"));
-
         List<UserEs> userEs = new ArrayList<>();
 
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 1; i++) {
             UserEs user = new UserEs();
             String name = PersonInfoSource.getInstance().randomChineseName();
             user.setUser_name(PersonInfoSource.getInstance().randomNickName(18));
@@ -63,9 +60,22 @@ public class Demo {
             String targetPath = "/home/user/picture/" + name + ".png";
             user.setImg_url(targetPath);
             user.setPassword(PersonInfoSource.getInstance().randomStrongPassword(32, false));
-            user.setAddress(AreaSource.getInstance().randomAddress());
-            user.setCity(AreaSource.getInstance().randomCity(","));
-            user.setProvince(AreaSource.getInstance().randomProvince());
+
+
+            String city = AreaSource.getInstance().randomCity(",");
+            String[] city_arr = city.split(",");
+
+            user.setProvince(city_arr[0]);
+            user.setCity(city_arr[1]);
+
+            CommonService commonService = new CommonService();
+            Province province = commonService.find_province(city_arr[0]);
+            user.setAddress(AreaSource.getInstance().randomAddress(province));
+
+//            user.setCity(AreaSource.getInstance().randomCity(","));
+//            user.setProvince(AreaSource.getInstance().randomProvince());
+//            user.setAddress(AreaSource.getInstance().randomAddress());
+
             user.setEmail(InternetSource.getInstance().randomEmail(15));
             user.setRole_id(NumberSource.getInstance().randomInt(1, 10));
             user.setTelphone(PersonInfoSource.getInstance().randomChineseMobile());
@@ -120,9 +130,17 @@ public class Demo {
                     String targetPath = "/home/user/picture/" + name + ".png";
                     user.setImg_url(targetPath);
                     user.setPassword(PersonInfoSource.getInstance().randomStrongPassword(32, false));
-                    user.setAddress(AreaSource.getInstance().randomAddress());
-                    user.setCity(AreaSource.getInstance().randomCity(","));
-                    user.setProvince(AreaSource.getInstance().randomProvince());
+
+                    String city = AreaSource.getInstance().randomCity(",");
+                    String[] city_arr = city.split(",");
+
+                    user.setProvince(city_arr[0]);
+                    user.setCity(city_arr[1]);
+
+                    CommonService commonService = new CommonService();
+                    Province province = commonService.find_province(city_arr[0]);
+                    user.setAddress(AreaSource.getInstance().randomAddress(province));
+
                     user.setEmail(InternetSource.getInstance().randomEmail(15));
                     user.setRole_id(NumberSource.getInstance().randomInt(1, 10));
                     user.setTelphone(PersonInfoSource.getInstance().randomChineseMobile());
