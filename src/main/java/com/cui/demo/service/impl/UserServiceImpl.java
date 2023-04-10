@@ -1,5 +1,6 @@
 package com.cui.demo.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.cui.demo.mapper.UserMapper;
 import com.cui.demo.pojo.dto.UserDto;
@@ -18,6 +19,8 @@ import org.springframework.util.StringUtils;
 import javax.annotation.Resource;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -59,11 +62,27 @@ public class UserServiceImpl implements UserService {
                 .eq(User::getPassword, password).last(" limit 1"));
 
         logger.info("user为:" + user.toString());
-        //将登录信息写入到redis
-        StringRedisSerializer stringRedisSerializer = new StringRedisSerializer();
-        redisTemplate.setKeySerializer(stringRedisSerializer);
-        logger.info("user_name的值为:" + user.getUserName());
-        redisTemplate.opsForValue().set(String.valueOf(user.getId()), user.getUserName());
+
+        String user_id=String.valueOf(user.getId());
+        if(StringUtils.isEmpty(redisTemplate.opsForValue().get(user_id))){
+            //将登录信息写入到redis
+            StringRedisSerializer stringRedisSerializer = new StringRedisSerializer();
+
+            //设置key和value序列化方式
+            redisTemplate.setKeySerializer(stringRedisSerializer);
+            redisTemplate.setValueSerializer(stringRedisSerializer);
+
+            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+
+            JSONObject redisMap = new JSONObject();
+            redisMap.put("userName", user.getUserName());
+            redisMap.put("email", user.getEmail());
+            redisMap.put("type", String.valueOf(user.getType()));
+            redisMap.put("birthday", df.format(user.getBirthday()));
+            logger.info("写入redis");
+            redisTemplate.opsForValue().set(String.valueOf(user.getId()), redisMap.toJSONString());
+        }
+
         return user;
     }
 }
