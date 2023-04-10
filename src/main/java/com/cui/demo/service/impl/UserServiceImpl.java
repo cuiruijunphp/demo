@@ -9,10 +9,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.Resource;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -20,6 +23,9 @@ import java.util.Date;
 public class UserServiceImpl implements UserService {
     @Autowired
     private UserMapper userMapper;
+
+    @Resource
+    private RedisTemplate redisTemplate;
 
     protected static Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
@@ -43,17 +49,21 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User login(UserDto userDto) {
-        if(StringUtils.isEmpty(userDto.getUser_name()) || StringUtils.isEmpty(userDto.getPassword())){
+        if(StringUtils.isEmpty(userDto.getUserName()) || StringUtils.isEmpty(userDto.getPassword())){
             //不能为空
             logger.error("不能为空");
         }
         String password = DigestUtils.md5DigestAsHex(userDto.getPassword().getBytes());
 
-        User user = userMapper.selectOne(new LambdaQueryWrapper<User>().eq(User::getUser_name,userDto.getUser_name())
-                .eq(User::getPassword, password));
+        User user = userMapper.selectOne(new LambdaQueryWrapper<User>().select().eq(User::getUserName,userDto.getUserName())
+                .eq(User::getPassword, password).last(" limit 1"));
 
-        System.out.println(user);
+        logger.info("user为:" + user.toString());
         //将登录信息写入到redis
+        StringRedisSerializer stringRedisSerializer = new StringRedisSerializer();
+        redisTemplate.setKeySerializer(stringRedisSerializer);
+        logger.info("user_name的值为:" + user.getUserName());
+        redisTemplate.opsForValue().set(String.valueOf(user.getId()), user.getUserName());
         return user;
     }
 }

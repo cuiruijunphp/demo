@@ -41,7 +41,7 @@ public class User {
 
         Map<String, String> map = HttpRequestUtil.commonHttpRequestParam(httpServletRequest);
         UserDto userDto = new UserDto();
-        userDto.setUser_name(map.get("user_name"));
+        userDto.setUserName(map.get("userName"));
         userDto.setPassword(map.get("password"));
         userDto.setEmail(map.get("email"));
         userDto.setType(Integer.valueOf(map.get("type")));

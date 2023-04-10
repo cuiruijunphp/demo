@@ -1,6 +1,7 @@
 package com.cui.demo.pojo.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -24,7 +25,8 @@ public class User implements Serializable {
 
     @TableId( type = IdType.AUTO)
     private Long id;
-    private String user_name;
+    @TableField(value = "user_name")
+    private String userName;
 
     @JsonIgnore
     private String password;
