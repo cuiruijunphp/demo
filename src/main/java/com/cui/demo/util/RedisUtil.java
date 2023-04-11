@@ -23,15 +23,6 @@ public class RedisUtil {
     @Resource
     private RedisTemplate redisTemplate;
 
-
-    public void RedisUtil(){
-        StringRedisSerializer stringRedisSerializer = new StringRedisSerializer();
-
-        //设置key和value序列化方式
-        redisTemplate.setKeySerializer(stringRedisSerializer);
-        redisTemplate.setValueSerializer(stringRedisSerializer);
-    }
-
     /**
      * 给一个指定的 key 值附加过期时间
      *

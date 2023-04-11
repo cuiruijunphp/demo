@@ -9,8 +9,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.SerializationException;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+
+import java.util.Objects;
 
 @Configuration
 public class RedisConfig {
@@ -23,20 +27,37 @@ public class RedisConfig {
 
         redisTemplate.setKeySerializer(stringRedisSerializer); // key的序列化类型
 
-        Jackson2JsonRedisSerializer jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer(Object.class);
+        GenericJackson2JsonRedisSerializerCustomized jackson2JsonRedisSerializer = new GenericJackson2JsonRedisSerializerCustomized();
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
         // 方法过期，改为下面代码
 //        objectMapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
         objectMapper.activateDefaultTyping(LaissezFaireSubTypeValidator.instance ,
                 ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
-        jackson2JsonRedisSerializer.setObjectMapper(objectMapper);
-        jackson2JsonRedisSerializer.setObjectMapper(objectMapper);
+//        jackson2JsonRedisSerializer.setObjectMapper(objectMapper);
+//        jackson2JsonRedisSerializer.setObjectMapper(objectMapper);
 
         redisTemplate.setValueSerializer(jackson2JsonRedisSerializer); // value的序列化类型
         redisTemplate.setHashKeySerializer(stringRedisSerializer);
         redisTemplate.setHashValueSerializer(jackson2JsonRedisSerializer);
         redisTemplate.afterPropertiesSet();
         return redisTemplate;
+    }
+}
+
+//解决string类型数据会多个双引号的问题
+class GenericJackson2JsonRedisSerializerCustomized extends GenericJackson2JsonRedisSerializer {
+    @Override
+    public byte[] serialize(Object source) throws SerializationException {
+        if (Objects.nonNull(source)) {
+            if (source instanceof String || source instanceof Character) {
+                return source.toString().getBytes();
+            }
+        }
+        return super.serialize(source);
+    }
+    @Override
+    public <T> T deserialize(byte[] source, Class<T> type) throws SerializationException {
+        return super.deserialize(source, type);
     }
 }

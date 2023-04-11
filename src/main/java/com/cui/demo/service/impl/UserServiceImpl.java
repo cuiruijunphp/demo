@@ -7,6 +7,7 @@ import com.cui.demo.pojo.dto.UserDto;
 import com.cui.demo.pojo.entity.User;
 import com.cui.demo.service.UserService;
 import com.cui.demo.util.RedisUtil;
+import lombok.val;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -88,7 +89,6 @@ public class UserServiceImpl implements UserService {
 //            RedisUtil redisUtil = new RedisUtil();
             redisUtil.set(user_id, redisMap.toJSONString());
         }
-
         return user;
     }
 }

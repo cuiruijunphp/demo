@@ -11,7 +11,6 @@ import java.util.Date;
 
 @Data
 public class UserDto {
-    @TableField("user_name")
     private String userName;
     private String password;
     private String email;
