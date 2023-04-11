@@ -6,6 +6,7 @@ import com.cui.demo.mapper.UserMapper;
 import com.cui.demo.pojo.dto.UserDto;
 import com.cui.demo.pojo.entity.User;
 import com.cui.demo.service.UserService;
+import com.cui.demo.util.RedisUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -29,6 +30,9 @@ public class UserServiceImpl implements UserService {
 
     @Resource
     private RedisTemplate redisTemplate;
+
+    @Autowired
+    private RedisUtil redisUtil;
 
     protected static Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
@@ -66,11 +70,11 @@ public class UserServiceImpl implements UserService {
         String user_id=String.valueOf(user.getId());
         if(StringUtils.isEmpty(redisTemplate.opsForValue().get(user_id))){
             //将登录信息写入到redis
-            StringRedisSerializer stringRedisSerializer = new StringRedisSerializer();
-
-            //设置key和value序列化方式
-            redisTemplate.setKeySerializer(stringRedisSerializer);
-            redisTemplate.setValueSerializer(stringRedisSerializer);
+//            StringRedisSerializer stringRedisSerializer = new StringRedisSerializer();
+//
+//            //设置key和value序列化方式
+//            redisTemplate.setKeySerializer(stringRedisSerializer);
+//            redisTemplate.setValueSerializer(stringRedisSerializer);
 
             SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -79,8 +83,10 @@ public class UserServiceImpl implements UserService {
             redisMap.put("email", user.getEmail());
             redisMap.put("type", String.valueOf(user.getType()));
             redisMap.put("birthday", df.format(user.getBirthday()));
-            logger.info("写入redis");
-            redisTemplate.opsForValue().set(String.valueOf(user.getId()), redisMap.toJSONString());
+            logger.info("写入redis" + redisMap.toJSONString());
+//            redisTemplate.opsForValue().set(String.valueOf(user.getId()), redisMap.toJSONString());
+//            RedisUtil redisUtil = new RedisUtil();
+            redisUtil.set(user_id, redisMap.toJSONString());
         }
 
         return user;
