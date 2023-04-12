@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
@@ -20,9 +21,7 @@ import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -69,26 +68,67 @@ public class UserServiceImpl implements UserService {
         logger.info("user为:" + user.toString());
 
         String user_id=String.valueOf(user.getId());
-        if(StringUtils.isEmpty(redisTemplate.opsForValue().get(user_id))){
+        String user_key = "user_info_" + user_id;
+        if(!redisUtil.hasKey(user_key)){
             //将登录信息写入到redis
-//            StringRedisSerializer stringRedisSerializer = new StringRedisSerializer();
-//
-//            //设置key和value序列化方式
-//            redisTemplate.setKeySerializer(stringRedisSerializer);
-//            redisTemplate.setValueSerializer(stringRedisSerializer);
-
             SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 
-            JSONObject redisMap = new JSONObject();
+            Map<String, Object> redisMap = new HashMap<>();
             redisMap.put("userName", user.getUserName());
             redisMap.put("email", user.getEmail());
             redisMap.put("type", String.valueOf(user.getType()));
-            redisMap.put("birthday", df.format(user.getBirthday()));
-            logger.info("写入redis" + redisMap.toJSONString());
+//            redisMap.put("birthday", df.format(user.getBirthday()));
+//            redisMap.put("@class", "User");
+//            logger.info("写入redis" + redisMap.toJSONString());
 //            redisTemplate.opsForValue().set(String.valueOf(user.getId()), redisMap.toJSONString());
 //            RedisUtil redisUtil = new RedisUtil();
-            redisUtil.set(user_id, redisMap.toJSONString());
+//            redisUtil.set(user_id, redisMap.toJSONString());
+            redisUtil.hput(user_key, "userName", user.getUserName());
+            redisUtil.hput(user_key, "email", user.getEmail());
+
+            redisUtil.hPutAll("user_info_all_" + user_id, redisMap);
         }
+
+//        Map<Object, Object> hashEntries = redisUtil.getHashEntries("user_info_all88");
+//        System.out.println(redisUtil.getHashEntries("user_info_all88"));
+
+//        Object tt = redisUtil.hGet(user_key, "userName");
+//        System.out.println(tt);
+//        Map<String, Object> hash_all = redisUtil.hGetAll(user_key);
+//        System.out.println(hash_all);
+//        for (Map.Entry<String, Object> entry: hash_all.entrySet()){
+//            System.out.println("---" + entry.getKey() + ":::" + entry.getValue());
+//        }
+//        System.out.println(hash_all.get("userName"));
+
+        //list格式
+//        String list_key = "list_test";
+//        redisUtil.leftPush(list_key, 11222);
+//        redisUtil.leftPush(list_key, "hello");
+////        redisUtil.leftPush(list_key, hash_all);
+//
+//        System.out.println(redisUtil.range(list_key, 0 , -1));
+
+        //zset格式
+//        Long time = System.currentTimeMillis()/1000;
+//        String zset_key = "zset_test";
+//        JSONObject jsonObject = new JSONObject();
+//        jsonObject.put("user_name", "xiaoliang");
+//        jsonObject.put("address", "xixian");
+//        jsonObject.put("province", "henan");
+//        jsonObject.put("time", time);
+//        String json_content = jsonObject.toJSONString();
+//        redisTemplate.opsForZSet().add(zset_key, json_content, time);
+//
+//        Long maxNum = 9999999999L;
+//        Set<ZSetOperations.TypedTuple<String>> set = redisTemplate.opsForZSet().rangeByScoreWithScores(zset_key, 0, maxNum);
+//        for (ZSetOperations.TypedTuple<String> value1: set){
+//            String val = value1.getValue();
+//            System.out.println("----" + val);
+//            JSONObject jsonObject1 = JSONObject.parseObject(val);
+//            System.out.println("这是json格式的name:" + jsonObject1.get("user_name"));
+//        }
+
         return user;
     }
 }

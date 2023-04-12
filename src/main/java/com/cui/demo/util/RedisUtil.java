@@ -277,6 +277,26 @@ public class RedisUtil {
     }
 
     /**
+     * 加入缓存key
+     * @param key
+     * @param hashKey
+     * @param value
+     */
+    public void hput(String key, String hashKey, Object value) {
+        redisTemplate.opsForHash().put(key, hashKey, value);
+    }
+
+    /**
+     * 加入缓存key
+     * @param key
+     * @param maps
+     */
+    public void hPutAll(String key, Map<String, Object> maps) {
+        redisTemplate.opsForHash().putAll(key, maps);
+    }
+
+
+    /**
      * 获取 key 下的 所有  hashkey 和 value
      *
      * @param key 键
@@ -297,15 +317,23 @@ public class RedisUtil {
         return redisTemplate.opsForHash().hasKey(key, hashKey);
     }
 
+    public Object hGet(String key, String field) {
+        return redisTemplate.opsForHash().get(key, field);
+    }
+
+    public Map<String,Object> hGetAll(String key) {
+        return redisTemplate.opsForHash().entries(key);
+    }
+
     /**
      * 获取指定key的值string
      *
      * @param key  键
-     * @param key2 键
+     * @param field 键
      * @return
      */
-    public String getMapString(String key, String key2) {
-        return redisTemplate.opsForHash().get("map1", "key1").toString();
+    public Object getMapString(String key, String field) {
+        return redisTemplate.opsForHash().get(key, field);
     }
 
     /**
