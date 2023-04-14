@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.regex.Matcher;
 
 @RestController
 public class Demo {
@@ -204,5 +205,17 @@ public class Demo {
         }
 
         return articles;
+    }
+
+    @RequestMapping("test")
+    public void test(){
+        String source_tmp = "{\"user_name\":\"hello\"}";
+        StringBuilder sb = new StringBuilder();
+        sb.append("\"");
+//        sb.append(source_tmp.replaceAll("\"", "\\\""));
+        sb.append(source_tmp.replaceAll("\"", Matcher.quoteReplacement("\\\"")));
+        sb.append("\"");
+//        String source = "\"" + source_tmp.replaceAll("\"", "\\\"") + "\"";
+        System.out.println(sb.toString());
     }
 }

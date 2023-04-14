@@ -37,7 +37,6 @@ public class HttpRequestUtil {
                             jsb.forEach((k,v) -> map.put(k,String.valueOf(v)));
                     }
                 }
-
             }
 
         }catch (Exception e){

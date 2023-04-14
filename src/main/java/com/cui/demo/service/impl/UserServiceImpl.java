@@ -7,6 +7,7 @@ import com.cui.demo.pojo.dto.UserDto;
 import com.cui.demo.pojo.entity.User;
 import com.cui.demo.service.UserService;
 import com.cui.demo.util.RedisUtil;
+import com.cui.demo.util.StringDealUtil;
 import lombok.val;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,17 +90,17 @@ public class UserServiceImpl implements UserService {
             redisUtil.hPutAll("user_info_all_" + user_id, redisMap);
         }
 
-//        Map<Object, Object> hashEntries = redisUtil.getHashEntries("user_info_all88");
-//        System.out.println(redisUtil.getHashEntries("user_info_all88"));
+        Map<Object, Object> hashEntries = redisUtil.getHashEntries(user_key);
+        System.out.println(redisUtil.getHashEntries(user_key));
 
-//        Object tt = redisUtil.hGet(user_key, "userName");
-//        System.out.println(tt);
-//        Map<String, Object> hash_all = redisUtil.hGetAll(user_key);
-//        System.out.println(hash_all);
-//        for (Map.Entry<String, Object> entry: hash_all.entrySet()){
-//            System.out.println("---" + entry.getKey() + ":::" + entry.getValue());
-//        }
-//        System.out.println(hash_all.get("userName"));
+        Object tt = redisUtil.hGet(user_key, "userName");
+        System.out.println(tt);
+        Map<String, Object> hash_all = redisUtil.hGetAll(user_key);
+        System.out.println(hash_all);
+        for (Map.Entry<String, Object> entry: hash_all.entrySet()){
+            System.out.println("---" + entry.getKey() + ":::" + entry.getValue());
+        }
+        System.out.println(hash_all.get("userName"));
 
         //list格式
 //        String list_key = "list_test";
@@ -110,24 +111,24 @@ public class UserServiceImpl implements UserService {
 //        System.out.println(redisUtil.range(list_key, 0 , -1));
 
         //zset格式
-//        Long time = System.currentTimeMillis()/1000;
-//        String zset_key = "zset_test";
-//        JSONObject jsonObject = new JSONObject();
-//        jsonObject.put("user_name", "xiaoliang");
-//        jsonObject.put("address", "xixian");
-//        jsonObject.put("province", "henan");
-//        jsonObject.put("time", time);
-//        String json_content = jsonObject.toJSONString();
-//        redisTemplate.opsForZSet().add(zset_key, json_content, time);
-//
-//        Long maxNum = 9999999999L;
-//        Set<ZSetOperations.TypedTuple<String>> set = redisTemplate.opsForZSet().rangeByScoreWithScores(zset_key, 0, maxNum);
-//        for (ZSetOperations.TypedTuple<String> value1: set){
-//            String val = value1.getValue();
-//            System.out.println("----" + val);
-//            JSONObject jsonObject1 = JSONObject.parseObject(val);
-//            System.out.println("这是json格式的name:" + jsonObject1.get("user_name"));
-//        }
+        Long time = System.currentTimeMillis()/1000;
+        String zset_key = "zset_test";
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("user_name", "xiaoliang");
+        jsonObject.put("address", "xixian");
+        jsonObject.put("province", "henan");
+        jsonObject.put("time", time);
+        String json_content = jsonObject.toJSONString();
+        redisTemplate.opsForZSet().add(zset_key, json_content, time);
+
+        Long maxNum = 9999999999L;
+        Set<ZSetOperations.TypedTuple<String>> set = redisTemplate.opsForZSet().rangeByScoreWithScores(zset_key, 0, maxNum);
+        for (ZSetOperations.TypedTuple<String> value1: set){
+            String val = value1.getValue();
+            System.out.println("----" + val);
+            JSONObject jsonObject1 = JSONObject.parseObject(val);
+            System.out.println("这是json格式的name:" + jsonObject1.get("user_name"));
+        }
 
         return user;
     }
