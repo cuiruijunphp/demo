@@ -9,6 +9,9 @@ import com.cui.demo.pojo.entity.EsArticle;
 import com.cui.demo.pojo.entity.UserEs;
 import com.cui.demo.service.*;
 import com.github.javafaker.Faker;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.lucene.util.ArrayUtil;
 import org.checkerframework.checker.units.qual.A;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
@@ -22,8 +25,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 
 @RestController
@@ -207,7 +215,7 @@ public class Demo {
         return articles;
     }
 
-    @RequestMapping("test")
+    @RequestMapping("array")
     public void test(){
         String source_tmp = "{\"user_name\":\"hello\"}";
         StringBuilder sb = new StringBuilder();
@@ -217,5 +225,50 @@ public class Demo {
         sb.append("\"");
 //        String source = "\"" + source_tmp.replaceAll("\"", "\\\"") + "\"";
         System.out.println(sb.toString());
+
+//        ConcurrentHashMap
+        //是否存在数组中
+        String[] strArr = new String[]{"dis", "cus"};
+        List<String> strings = Arrays.asList(strArr);
+        System.out.println(strings.contains("dis"));
+        System.out.println(ArrayUtils.contains(strArr, "dis"));
+        System.out.println(StringUtils.isEmpty("gtttt"));
+        System.out.println(StringUtils.endsWith("tttgggg", "ggg"));
+        List list = new ArrayList();
+        list.add(13);
+        list.add(17);
+        list.add(6);
+        list.add(-1);
+        list.add(2);
+        list.add("abc");
+        System.out.println(list);
+        list.add(3,66);
+        System.out.println(list);
+
+        ArrayBlockingQueue<String> arrayBlockingQueue = new ArrayBlockingQueue(3);
+    }
+
+    @RequestMapping("test")
+    public void testFile() throws Exception {
+        // 文件相关操作
+         File file = new File("E:\\2.txt");
+         FileReader fr = new FileReader(file);
+
+         //一个字节一个字节的读取
+//         int n;
+//         while ((n = fr.read()) != -1){
+//            System.out.println((char) n);
+//         }
+
+         //设置几个字节一起读
+         char[] ch = new char[1024];
+         int len = fr.read(ch);
+         while (len != -1){
+             String s1 = new String(ch, 0, len);
+             System.out.println(s1);
+             len = fr.read(ch);
+         }
+
+        fr.close();
     }
 }
