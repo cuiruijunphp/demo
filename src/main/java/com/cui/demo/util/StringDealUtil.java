@@ -1,5 +1,7 @@
 package com.cui.demo.util;
 
+import org.springframework.util.DigestUtils;
+
 public class StringDealUtil {
 
     /**
@@ -29,5 +31,14 @@ public class StringDealUtil {
             }
         }
         return str.substring(leftSubPos, rightSubPos);
+    }
+
+    /**
+     * 对字符的md5加密
+     * @param str
+     * @return
+     */
+    public static String md5String(String str){
+        return DigestUtils.md5DigestAsHex(str.getBytes());
     }
 }

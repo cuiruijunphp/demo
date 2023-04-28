@@ -4,10 +4,12 @@ import com.alibaba.fastjson.JSON;
 import com.apifan.common.random.RandomSource;
 import com.apifan.common.random.constant.Province;
 import com.apifan.common.random.source.*;
+import com.cui.demo.pojo.dto.Test1Param;
 import com.cui.demo.pojo.entity.Article;
 import com.cui.demo.pojo.entity.EsArticle;
 import com.cui.demo.pojo.entity.UserEs;
 import com.cui.demo.service.*;
+import com.cui.demo.service.impl.UserServiceImpl;
 import com.github.javafaker.Faker;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -20,11 +22,14 @@ import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.xcontent.XContentType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -51,6 +56,8 @@ public class Demo {
 
     @Autowired
     private ArticleInsertEsThreadService articleInsertEsThreadService;
+
+    protected static Logger logger = LoggerFactory.getLogger(Demo.class);
 
     @RequestMapping("/insertLargeData")
 //    @RequestBody
@@ -270,5 +277,22 @@ public class Demo {
          }
 
         fr.close();
+    }
+
+
+    @RequestMapping(value = "/test1",method = RequestMethod.POST)
+    public void test1(HttpServletRequest request){
+        String id = request.getParameter("id");
+        String type = request.getParameter("type");
+
+        String user_name = request.getParameter("user_name");
+        String title = request.getParameter("title");
+        String content = request.getParameter("content");
+
+//        String user_name = post1.getUser_name();
+//        String title = post1.getTitle();
+//        String content = post1.getContent();
+
+        System.out.println("id="+id + ", type="+type+",user_name ="+user_name+", title="+title+",content="+content);
     }
 }

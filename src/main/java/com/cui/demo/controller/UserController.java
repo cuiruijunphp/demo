@@ -2,6 +2,7 @@ package com.cui.demo.controller;
 
 import co.elastic.clients.json.JsonpUtils;
 import com.cui.demo.pojo.dto.UserDto;
+import com.cui.demo.pojo.entity.User;
 import com.cui.demo.service.UserService;
 import com.cui.demo.util.HttpRequestUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +19,7 @@ import java.util.Map;
 
 
 @RestController
-public class User {
+public class UserController {
     @Autowired
     private UserService userService;
 
@@ -30,11 +31,16 @@ public class User {
 
     @ResponseBody
     @PostMapping("/login")
-    public com.cui.demo.pojo.entity.User login(UserDto userDto){
-        com.cui.demo.pojo.entity.User user = userService.login(userDto);
+    public User login(UserDto userDto){
+        User user = userService.login(userDto);
         return user;
     }
 
+    /**
+     * 可以传入form表单或者json格式的请求参数
+     * @param httpServletRequest
+     * @throws ParseException
+     */
     @ResponseBody
     @PostMapping("/register_common")
     public void registerCommon(HttpServletRequest httpServletRequest) throws ParseException {

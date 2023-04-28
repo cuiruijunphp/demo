@@ -23,6 +23,7 @@ import org.springframework.util.StringUtils;
 import javax.annotation.Resource;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -60,36 +61,50 @@ public class UserServiceImpl implements UserService {
         if(StringUtils.isEmpty(userDto.getUserName()) || StringUtils.isEmpty(userDto.getPassword())){
             //不能为空
             logger.error("不能为空");
+            return null;
         }
-        String password = DigestUtils.md5DigestAsHex(userDto.getPassword().getBytes());
+
+//        String password = DigestUtils.md5DigestAsHex(userDto.getPassword().getBytes());
+        String password = StringDealUtil.md5String(userDto.getPassword());
 
         User user = userMapper.selectOne(new LambdaQueryWrapper<User>().select().eq(User::getUserName,userDto.getUserName())
                 .eq(User::getPassword, password).last(" limit 1"));
 
         logger.info("user为:" + user.toString());
 
+        //生成一个token
         String user_id=String.valueOf(user.getId());
-        String user_key = "user_info_" + user_id;
-        if(!redisUtil.hasKey(user_key)){
+        String user_key = "uinfo_" + user_id;
+
+        // 生成一个随机的token作为用户的登录凭证
+        String token = UUID.randomUUID().toString();
+
+        if(!redisUtil.hasKey(token)){
             //将登录信息写入到redis
             SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 
-            Map<String, Object> redisMap = new HashMap<>();
-            redisMap.put("userName", user.getUserName());
-            redisMap.put("email", user.getEmail());
-            redisMap.put("type", String.valueOf(user.getType()));
+//            Map<String, Object> redisMap = new HashMap<>();
+//            redisMap.put("userName", user.getUserName());
+//            redisMap.put("email", user.getEmail());
+//            redisMap.put("type", String.valueOf(user.getType()));
 //            redisMap.put("birthday", df.format(user.getBirthday()));
 //            redisMap.put("@class", "User");
 //            logger.info("写入redis" + redisMap.toJSONString());
 //            redisTemplate.opsForValue().set(String.valueOf(user.getId()), redisMap.toJSONString());
 //            RedisUtil redisUtil = new RedisUtil();
 //            redisUtil.set(user_id, redisMap.toJSONString());
-            redisUtil.hput(user_key, "userName", user.getUserName());
-            redisUtil.hput(user_key, "email", user.getEmail());
+            redisUtil.hput(token, "userName", user.getUserName());
+            redisUtil.hput(token, "email", user.getEmail());
+            redisUtil.hput(token, "id", user_id);
 
-            redisUtil.hPutAll("user_info_all_" + user_id, redisMap);
+            redisTemplate.expire(token, 30*60, TimeUnit.SECONDS);
+
+//            redisUtil.hPutAll("user_info_all_" + user_id, redisMap);
         }
 
+        return user;
+
+        /**
         Map<Object, Object> hashEntries = redisUtil.getHashEntries(user_key);
         System.out.println(redisUtil.getHashEntries(user_key));
 
@@ -129,7 +144,6 @@ public class UserServiceImpl implements UserService {
             JSONObject jsonObject1 = JSONObject.parseObject(val);
             System.out.println("这是json格式的name:" + jsonObject1.get("user_name"));
         }
-
-        return user;
+         */
     }
 }
